@@ -7,17 +7,32 @@ Usage
 -----
 
 ```python
-from secure_smtpd import SMTPServer, FakeCredentialValidator
-SMTPServer(
-    self,
-    ('0.0.0.0', 465),
-    None,
-    require_authentication=True,
-    ssl=True,
-    certfile='examples/server.crt',
-    keyfile='examples/server.key',
-    credential_validator=FakeCredentialValidator(),
-    debug=True
-)
+import asyncore
+from secure_smtpd import SMTPServer
+import logging
+
+
+class OkCredentialValidator(object):
+    def validate(self, username, password):
+        # TODO: check username, password for validation test
+        return True
+
+
+class OkSMTPServer(SMTPServer):
+    def __init__(self):
+        SMTPServer.__init__(self,
+                            ('0.0.0.0', 2500),
+                            None,
+                            require_authentication=True,
+                            ssl=False,
+                            credential_validator=OkCredentialValidator())
+        self.logger.setLevel(logging.DEBUG)
+
+    def process_message(self, peer, mailfrom, rcpttos, data):
+        # TODO: check envelope
+        print("%s %s %s %s" % (peer, mailfrom, rcpttos, data))
+
+
+OkSMTPServer()
 asyncore.loop()
 ```
