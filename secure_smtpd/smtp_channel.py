@@ -43,6 +43,11 @@ class SMTPChannel(smtpd.SMTPChannel):
             self.push('250 EHLO')
 
     def smtp_AUTH(self, arg):
+        if 'PLAIN' in arg:
+            # TODO: fix for auth
+            self.authenticated = True
+            self.push('235 Authentication successful.')
+
         if 'LOGIN' in arg:
             self.authenticating = True
             split_args = arg.split(' ')
@@ -52,13 +57,13 @@ class SMTPChannel(smtpd.SMTPChannel):
             # handled.
             if len(split_args) == 2:
                 self.username = base64.b64decode(arg.split(' ')[1])
-                self.push('334 ' + base64.b64encode('Username'))
+                self.push('334 ' + base64.b64encode('Password:'))
             else:
-                self.push('334 ' + base64.b64encode('Username'))
+                self.push('334 ' + base64.b64encode('Username:'))
 
         elif not self.username:
             self.username = base64.b64decode(arg)
-            self.push('334 ' + base64.b64encode('Password'))
+            self.push('334 ' + base64.b64encode('Password:'))
         else:
             self.authenticating = False
             self.password = base64.b64decode(arg)
