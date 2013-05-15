@@ -29,7 +29,7 @@ class OkSMTPServer(SMTPServer):
         self.logger.setLevel(logging.DEBUG)
 
     def process_message(self, peer, mailfrom, rcpttos, data):
-        # TODO: check envelope
+        # TODO: need check envelope
         print("%s %s %s %s" % (peer, mailfrom, rcpttos, data))
 
 
